@@ -1,8 +1,13 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
+const connectDB = require('./db');
+const User = require('./models/User');
 
 const app = express();
+
+// Connect to MongoDB
+connectDB();
 
 // CORS options
 const corsOptions = {
@@ -20,21 +25,44 @@ app.get('/api/health', (req, res) => {
 });
 
 // Form submission endpoint
-app.post('/api/submit', (req, res) => {
-  const { firstName, lastName } = req.body;
+// app.post('/api/submit', (req, res) => {
+//   const { firstName, lastName } = req.body;
 
-  console.log('Received data:', firstName, lastName);
+//   console.log('Received data:', firstName, lastName);
 
-  // Respond with the submitted data
-  res.json({
-    status: 'success',
-    firstName,
-    lastName,
-  });
+//   // Respond with the submitted data
+//   res.json({
+//     status: 'success',
+//     firstName,
+//     lastName,
+//   });
+// });
+
+// Submit form → SAVE to MongoDB
+app.post('/api/submit', async (req, res) => {
+  try {
+    const { firstName, lastName } = req.body;
+
+    const newUser = new User({
+      firstName,
+      lastName,
+    });
+
+    await newUser.save();
+
+    res.json({
+      status: 'success',
+      firstName,
+      lastName,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: 'error' });
+  }
 });
 
 // Handle preflight OPTIONS requests globally (optional, cors() already does this)
-app.options('*', cors(corsOptions));
+// app.options('*', cors(corsOptions));
 
 const PORT = process.env.PORT || 5020;
 app.listen(PORT, () => {
