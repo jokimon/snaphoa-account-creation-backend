@@ -43,12 +43,12 @@ app.post('/api/submit', async (req, res) => {
   try {
     const { firstName, lastName } = req.body;
 
-    const newUser = new User({
-      firstName,
-      lastName,
-    });
+    console.log("Received from frontend:", firstName, lastName);
 
-    await newUser.save();
+    const newUser = new User({ firstName, lastName });
+    const savedUser = await newUser.save();
+
+    console.log("Saved to MongoDB:", savedUser);
 
     res.json({
       status: 'success',
@@ -56,10 +56,11 @@ app.post('/api/submit', async (req, res) => {
       lastName,
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error saving user:", err);
     res.status(500).json({ status: 'error' });
   }
 });
+
 
 // Handle preflight OPTIONS requests globally (optional, cors() already does this)
 // app.options('*', cors(corsOptions));
